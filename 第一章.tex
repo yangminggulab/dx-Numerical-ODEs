@@ -1,0 +1,588 @@
+\chapter{第一章基础知识}
+\begin{definition}{Lipschitz 条件}
+设 $f(t,u)$ 在区域 $G: 0 \le t \le T, |u| < \infty$ 上连续。若存在常数 $L$，使得对于 $G$ 内任意的 $u_1, u_2$，均有：
+\begin{equation}
+    |f(t, u_1) - f(t, u_2)| \le L |u_1 - u_2|
+\end{equation}
+则称 $f$ 关于 $u$ 满足 \textbf{Lipschitz 条件}。
+\end{definition}
+\begin{definition}[Euler 法，记住f是u位置t时刻函数的导数]
+设常微分方程初值问题
+\[
+\begin{cases}
+u'(t) = f(t,u(t)), \quad t \in [0,T], \\
+u(0) = u_0.
+\end{cases}
+\]
+
+将区间 $[0,T]$ 等分为 $N$ 份，步长 $h = T/N$，
+记节点 $t_n = nh \ (n=0,1,\dots,N)$。
+
+由初值 $u(t_0)=u_0$，并利用
+\[
+u'(t_0) = f(t_0,u_0),
+\]
+对 $u(t)$ 在 $t_0$ 处作 Taylor 展开：
+\[
+u(t_1)=u(t_0+h)
+= u(t_0) + h u'(t_0)
++ \frac{h^2}{2} u''(t_0)
++ \frac{h^3}{6} u^{(3)}(\zeta),
+\quad \zeta \in (t_0,t_1).
+\]
+
+忽略二阶及以上高阶小量，得到近似格式
+\[
+u(t_1) \approx u_0 + h f(t_0,u_0).
+\]
+
+据此定义 Euler 迭代格式：
+\[
+\boxed{
+u_{n+1} = u_n + h f(t_n,u_n), \quad n=0,1,\dots,N-1.
+}
+\]
+\end{definition}
+\begin{note}
+Euler 法的本质是\textbf{局部线性化}。对 $u(t)$ 在 $t_0$ 处作 Taylor 展开并忽略二阶及以上的高阶小量，即可得到其迭代格式：
+\begin{equation*}
+    u_{n+1} = u_n + hf(t_n, u_n), \quad n = 0, 1, \dots, N-1.
+\end{equation*}
+
+Euler 法用微小步长内的直线运动去逼近真实的曲线运动。虽然每一步都会产生一点点“把弯曲当成笔直”带来的截断误差，但只要步长 $h$ 足够小，这个折线连起来的轨迹就能非常贴近真实的曲线。
+\end{note}
+既然你不知道整座山的形状，你怎么往前走呢？Euler 给出的策略非常简单粗暴：
+
+\begin{enumerate}
+    \item 在你现在的起始点 $(t_0, u_0)$，算一下坡度是 $f(t_0, u_0)$。
+    \item 假设前面一小段路都是平直的斜坡（即沿着切线方向）。
+    \item 顺着这个斜坡往前走一小步，水平距离为步长 $h$。
+    \item 此时你到达了新的位置 $(t_1, u_1)$。根据基础的直线方程（纵坐标变化 = 横坐标变化 $\times$ 斜率），你的新高度就是：
+    \begin{equation*}
+        u_1 = u_0 + h f(t_0, u_0)
+    \end{equation*}
+    \item 到达新点后，重新摸一下脚下的坡度 $f(t_1, u_1)$，再顺着新的切线走一步 $h$，得到 $u_2$。以此类推。
+\end{enumerate}
+\begin{note}
+Euler 法的本质可以从数值积分的角度理解。将初值问题写成等价的积分形式：这个是精确的
+\begin{equation}
+    u(t_{n+1}) = u(t_n) + \int_{t_n}^{t_{n+1}} f(\tau, u(\tau)) \mathrm{d}\tau.
+\end{equation}
+
+通过对右端积分使用不同的数值积分公式，可以得到不同的数值格式：
+\begin{itemize}
+    \item \textbf{左矩形公式}：用区间左端点的值近似积分，即 $\int_{t_n}^{t_{n+1}} f \mathrm{d}\tau \approx h f(t_n, u_n)$，得到 \textbf{Euler 法}。
+    \item \textbf{梯形公式}：用左右两端点的平均值近似积分，即 $\int_{t_n}^{t_{n+1}} f \mathrm{d}\tau \approx \frac{h}{2}[f(t_n, u_n) + f(t_{n+1}, u_{n+1})]$，得到 \textbf{改进的 Euler 法}（或称梯形公式）。也就是把两个端点的平均斜率当这段的斜率
+\end{itemize}
+\end{note}
+\begin{definition}[基于线性近似的局部截断误差]
+考虑一阶常微分方程初值问题 $u' = f(t, u)$。在时刻 $t_n$ 处，精确解 $u(t)$ 的切线斜率定义为：
+\[ k = u'(t_n) = f(t_n, u(t_n)) \]
+根据直线方程 $\Delta y = k \cdot \Delta x$，若步长设定为 $h$（即 $\Delta x = h$），则沿切线方向的线性增量为：
+\[ \Delta y = h \cdot f(t_n, u(t_n)) \]
+由此可得 \textbf{局部截断误差 (Local Truncation Error)} $R_n$ 的定义，即下一时刻的精确值 $u(t_{n+1})$ 与该线性预测值之间的残差：
+\[ R_n = u(t_{n+1}) - [u(t_n) + h f(t_n, u(t_n))] \]
+若对 $u(t_{n+1})$ 进行 Taylor 展开：
+\[ u(t_{n+1}) = u(t_n) + h u'(t_n) + \frac{h^2}{2}u''(\xi), \quad \xi \in (t_n, t_{n+1}) \]
+代入斜率关系 $u'(t_n) = f(t_n, u(t_n))$，可知：
+\[ R_n = \frac{h^2}{2}u''(\xi) = O(h^2) \]
+该误差本质上是由于忽略了泰勒展开中的高阶项（即曲线的曲率部分）而产生的。
+\end{definition}
+\begin{dxtips}
+带f的式子就是导数也就是方向，h就是在这个方向走了多远。
+\end{dxtips}
+关于误差我们希望最终误差是有限制的，而且能通过初值和利普希斯条件锁定。利普希斯条件限制的相邻两个斜率的差和上一个误差的比例所以能吧递推中的斜率相减乘h内一项吸收进en-1
+\begin{proof}
+根据 Euler 方法的误差递推关系，已知：
+\begin{equation}
+|e_n| \le (1 + hL)|e_{n-1}| + R
+\end{equation}
+其中 $R = \max_n |R_n|$ 为局部截断误差的最大值。由上述公式递推可得：
+\begin{align}
+|e_n| &\le (1 + hL)|e_{n-1}| + R \notag \\
+&\le (1 + hL)^2 |e_{n-2}| + (1 + hL)R + R \notag \\
+&\le \cdots \notag \\
+&\le (1 + hL)^n |e_0| + R \sum_{j=0}^{n-1} (1 + hL)^j
+\end{align}
+利用等比数列求和公式，上式可写为：
+\begin{equation}
+|e_n| \le (1 + hL)^n |e_0| + \frac{R}{hL} \left( (1 + hL)^n - 1 \right)
+\end{equation}
+又因为 $1 + hL \le e^{hL}$，且 $nh = T - t_0$，则有 $(1 + hL)^n \le e^{nhL} = e^{(T - t_0)L}$。代入得：
+\begin{equation}
+|e_n| \le e^{(T - t_0)L} |e_0| + \frac{R}{hL} \left( e^{(T - t_0)L} - 1 \right)
+\end{equation}
+考虑到初值精确即 $e_0 = 0$，且 Euler 方法的局部截断误差 $R = Ch^2$，整理得到最终估计：
+\begin{equation}
+|e_n| \le ChL^{-1} e^{(T - t_0)L}
+\end{equation}
+由于 $C, L, T, t_0$ 均与 $h$ 无关，故证明了全局误差 $|e_n| = O(h)$。
+\end{proof}
+\begin{dxtips}
+    这里用了一个很有用的放缩从1+x小于等于ex到两边都n次方再把x替换成hl。利用基础不等式 $1+x \le e^x$（对于 $x \ge 0$），令 $x = hL$，则有：\begin{equation}1 + hL \le e^{hL}\end{equation}对不等式两边同时取 $n$ 次幂：\begin{equation}(1 + hL)^n \le (e^{hL})^n = e^{nhL}\end{equation}由于 $nh = t_n - t_0 \le T - t_0$，代入上式得：\begin{equation}(1 + hL)^n \le e^{(T - t_0)L}\end{equation}将此放缩应用于误差界限公式：\begin{align}|e_n| &\le (1 + hL)^n |e_0| + \frac{(1 + hL)^n - 1}{hL} R \&\le e^{(T - t_0)L} |e_0| + \frac{e^{(T - t_0)L} - 1}{hL} R\end{align}
+\end{dxtips}
+\begin{definition}[数值稳定性--只要最终误差是最开始误差的一个常数比例就OK]
+在实际计算中，初值往往不能精确给出（例如测量误差、舍入误差等）。我们希望最初产生的小误差在以后的计算中虽然会传递下去，但不会无限制地扩大。
+
+设由初值 $u_0$ 得到的数值解为 $\{u_n\}$，由带误差的初值 $v_0$ 得到的数值解为 $\{v_n\}$。如果存在常数 $C$（与步长 $h$ 无关），使得对于任意的 $n$ 均有：
+\begin{equation}
+    |u_n - v_n| \le C |u_0 - v_0|
+\end{equation}
+则称该数值方法是 \textbf{稳定的} (Stable)。
+\end{definition}
+\begin{definition}[收敛性]
+收敛性研究的是整体误差。当步长 $h \to 0$ 时，若数值解 $u_n$ 趋于精确解 $u(t_n)$，即
+\begin{equation}
+\lim_{h \to 0} u_n = u(t_n)
+\end{equation}
+则称该数值方法是 \textbf{收敛的}。收敛性表明局部小的误差累加起来仍是小误差。
+\end{definition}
+\begin{definition}[相容性]
+设数值格式为 $L_h(u_{n+1}, u_n, \dots) = 0$，若当步长 $h \to 0$ 时，格式的局部截断误差 $R_n$ 趋于 $0$，即：
+\begin{equation}
+    \lim_{h \to 0} \frac{R_n}{h} = 0
+\end{equation}
+则称该数值格式是 \textbf{相容的} (Consistent)。对于 Euler 方法，其局部截断误差为 $R_n = O(h^2)$，因此有：
+\begin{equation}
+    \frac{R_n}{h} = O(h) \to 0 \quad (h \to 0)
+\end{equation}
+这表明 Euler 方法与原微分方程是相容的。
+\end{definition}
+\begin{definition}[差商代替微商]
+在数值解法中，最基本的思想是利用离散的 \textbf{差商} (Difference Quotient) 近似代替连续的 \textbf{微商} (Derivative)：
+\begin{equation}
+    u'(t_n) \approx \frac{u(t_{n+1}) - u(t_n)}{h}
+\end{equation}
+结合微分方程 $u'(t) = f(t, u)$，代入上式即可导出显式 Euler 格式：
+\begin{equation}
+    u_{n+1} = u_n + h f(t_n, u_n)
+\end{equation}
+\end{definition}
+\begin{definition}[显式 Euler 格式]利用当前点 $(t_n, u_n)$ 的斜率进行向前推进：\begin{equation}u_{n+1} = u_n + h f(t_n, u_n)\end{equation}该格式为显式计算，计算量小，但仅满足 \textbf{条件稳定}。\end{definition}
+\begin{definition}[隐式 Euler 格式]利用下一时刻点 $(t_{n+1}, u_{n+1})$ 的斜率进行推进：\begin{equation}u_{n+1} = u_n + h f(t_{n+1}, u_{n+1})\end{equation}该格式通常需解非线性方程，计算量大，但满足 \textbf{绝对稳定}，适用于刚性问题。\end{definition}
+显示欧拉用左端点的斜率当方向隐式欧拉哪又端点
+\begin{dxtips}
+    显式需要步长取的小，隐式的可以把步长选的长。显式格式： 顺着现在的路标走，不管前面路况。
+
+隐式格式： 预判前面的路况，要求走完这一步后，回头看时，刚才走的路径斜率必须与终点的导数吻合。h就是步长也就是求速度时路程处以的t
+\end{dxtips}
+\begin{dxtips}[显示与隐式的区别就是是否包要求的un+1和他的导数]
+    隐式需要解方程
+\end{dxtips}
+\noindent {\Large \textbf{预估-校正算法}}
+
+\rule{\textwidth}{0.4pt}
+
+改进的 Euler 方法虽然整体误差阶更高，但是每步计算需要求解一个非线性方程。非线性方程的求解需要利用迭代方法求解，这里可以使用如下的迭代公式：
+\[
+u_{n+1}^{[k+1]} - u_{n} = \frac{h}{2} [ f(t_{n+1}, u_{n+1}^{[k]}) + f(t_{n}, u_{n}) ], \quad k = 0, 1, \cdots
+\]
+为了避免做非线性迭代，接下来介绍预估-校正算法。算法分为两步：\\
+第一步：利用显示 Euler 方法做预测，算出
+\[
+\bar{u}_{n+1} - u_{n} = h f(t_{n}, u_{n}),
+\]
+再将 $\bar{u}_{n+1}$ 带入梯形公式的右端做校正
+\[
+u_{n+1} - u_{n} = \frac{h}{2} [ f(t_{n+1}, \bar{u}_{n+1}) + f(t_{n}, u_{n}) ],
+\]
+\begin{dxtips}
+    先用显式算出下一个点是多少，然后再那算出来点点斜率和起始点的斜率的平均值乘h算出真是的增量。加上起始点就是真正的下一个点
+\end{dxtips}
+\begin{dxtips}[误差分析]
+    误差分析就是对比泰勒展开-欧拉方法。
+\end{dxtips}
+Euler 方法以及 Taylor 展开的公式如下：
+\[
+u(t_{n+1}) = u(t_n) + \frac{h}{2} [f(t_n, u(t_n)) + f(t_{n+1}, u(t_{n+1}))] + R_n
+\]
+\[
+u_{n+1} = u_n + \frac{h}{2} [f(t_n, u_n) + f(t_{n+1}, u_{n+1})]
+\]
+你的理解非常到位。在数值分析中，这正是**局部截断误差**（只看当前步）与**整体截断误差**（考虑全过程累积）的本质区别。
+
+
+\noindent \textbf{理解与对比：}
+
+\begin{itemize}
+    \item \textbf{精确解 $u(t_{n+1})$：} 
+    在上式中，我们假设第 $n$ 步是准确的（即从真实的 $u(t_n)$ 出发），仅考察公式本身在一步迭代中产生的数学损失，即：
+    \[ u(t_{n+1}) = u(t_n) + \text{增量} + R_n \]
+    这里的 $R_n$ 称为\textbf{局部截断误差}。
+
+    \item \textbf{数值解 $u_{n+1}$：} 
+    这是我们实际通过算法得到的序列。正如你所说，它是从初始值 $u_0$ 开始，利用前一步的近似值 $u_n$ 迭代算出的：
+    \[ u_{n+1} = u_n + \text{增量} \]
+    由于 $u_n$ 本身已经包含了从 $u_1, u_2, \dots$ 累积下来的误差，所以 $u_{n+1}$ 与真实值 $u(t_{n+1})$ 之间的差值反映了\textbf{整体截断误差}。
+\end{itemize}
+
+\noindent \textbf{结论：} 
+下式之所以没有 $R_n$，是因为它是算法的\textbf{定义式}；而上式之所以有 $R_n$，是为了说明这个定义式与真实曲线之间存在多大的\textbf{理论偏离}。
+算误差是为了看步长选什么才能保证收敛
+\section{1.3}
+\begin{definition}[多步法]
+    \noindent \textbf{线性多步法 (Linear Multi-step Methods)}
+
+\vspace{1em}
+
+利用 Euler 方法计算数值解的时候，用到的是上一步的信息。也就是说为了计算 $u_{n+1}$，用到了 $u_n$。我们把这种类型的算法称为\textbf{单步法}。
+
+接下来思考一下，计算 $u_{n+1}$ 的时候 $u_n, u_{n-1}, \cdots, u_0$ 的值都已经求出来了，只利用一个值的话其它信息就浪费了。所以接下来介绍一种方法利用更多的已得信息。这种类型的算法我们称为\textbf{多步法}。算法的一般形式为：
+\[
+\sum_{j=0}^{k} \alpha_j u_{n+j} = h \sum_{j=0}^{k} \beta_j f_{n+j}, \quad \text{其中 } f_{n+j} = f(t_{n+j}, u_{n+j})
+\]
+因为上述方程关于 $f_{n+j}$ 是线性的，所以算法也称为\textbf{线性多步法}。
+
+\vspace{1em}
+
+\noindent \textbf{注：}
+\begin{itemize}
+    \item 若 $\beta_k = 0$，则该方法为\textbf{显式}多步法。
+    \item 若 $\beta_k \neq 0$，则该方法为\textbf{隐式}多步法。
+\end{itemize}
+
+\end{definition}
+\begin{example}
+    \textbf{（赛车位移预测中的权重确定）} 假设我们需要预测一辆赛车在 $t_{n+2}$ 时刻的位移 $u_{n+2}$。已知采样步长 $h=1\text{s}$，且赛车在 $t_n$ 和 $t_{n+1}$ 时刻的速度分别为 $f_n = 100\text{m/s}$ 和 $f_{n+1} = 120\text{m/s}$。若使用二步 Adams-Bashforth 显式法，其公式为：
+    $$u_{n+2} - u_{n+1} = h \left( \beta_1 f_{n+1} + \beta_0 f_n \right)$$
+    为了使该方法具有二阶精度，权重系数确定为 $\beta_1 = 1.5$ 且 $\beta_0 = -0.5$。
+    
+    具体计算过程如下：
+    $$u_{n+2} = u_{n+1} + 1 \times (1.5 \times 120 - 0.5 \times 100) = u_{n+1} + 130$$
+    与之相比，普通的 Euler 单步法（权重 $\beta_1=1, \beta_0=0$）预测值为 $u_{n+1} + 120$。
+    
+    \textbf{物理意义}：权重 $\beta_1=1.5$ 和 $\beta_0=-0.5$ 的组合实际上是在利用历史速度信息进行线性外推。由于速度从 $100$ 增加到了 $120$，算法“认为”加速度为正，因此在 $t_{n+1}$ 的基础上补偿了更多的位移，从而比单步法更接近真实的物理运动。
+\end{example}
+\begin{dxtips}
+    h乘βi就是第i个的导数的权重
+\end{dxtips}
+\begin{example}
+    \textbf{（利用代数精度法确定二阶显式法的权重）} 考虑二步显式线性多步法，其结构固定为 $u_{n+2} - u_{n+1} = h(\beta_1 f_{n+1} + \beta_0 f_n)$。为了使该方法达到 $p=2$ 阶精度，我们需要确定未知的权重系数 $\beta_1$ 和 $\beta_0$。
+
+    根据代数精度理论，该公式必须对所有次数不超过 $2$ 的多项式严格成立。为简化计算，设 $t_n = 0, t_{n+1} = h, t_{n+2} = 2h$：
+    
+    1. 令 $u(t) = t$，则 $f(t) = u'(t) = 1$。代入公式得：
+    $$(h) - (0) = h(\beta_1 \cdot 1 + \beta_0 \cdot 1) \implies \beta_1 + \beta_0 = 1$$
+    
+    2. 令 $u(t) = t^2$，则 $f(t) = u'(t) = 2t$。此时 $f_{n+1} = 2h, f_n = 0$。代入公式得：
+    $$(h)^2 - (0)^2 = h(\beta_1 \cdot 2h + \beta_0 \cdot 0) \implies h^2 = 2h^2 \beta_1 \implies \beta_1 = \frac{1}{2}$$
+    
+    3. 联立上述两个方程，解得：
+    $$\beta_1 = \frac{1}{2}, \quad \beta_0 = \frac{1}{2}$$
+    
+    由此确定的具体二阶权重公式（即梯形预测公式）为：
+    $$u_{n+2} - u_{n+1} = \frac{h}{2}(f_{n+1} + f_n)$$
+    该过程展示了如何通过提高代数精度来锁定 $\beta$ 的具体数值。
+\end{example}
+\begin{definition}{Lagrange 插值多项式}
+    给定 $n+1$ 个互异的节点以及对应的节点值：
+    \begin{table}[htbp]
+        \centering
+        \begin{tabular}{c|c|c|c|c}
+            $t$ & $t_1$ & $t_2$ & $\cdots$ & $t_{n+1}$ \\ \hline
+            $f(t)$ & $f(t_1)$ & $f(t_2)$ & $\cdots$ & $f(t_{n+1})$
+        \end{tabular}
+    \end{table}
+    则满足插值条件 $L_n(t_i) = f(t_i)$（其中 $i=1, 2, \cdots, n+1$）的 $n$ 次插值多项式为：
+    $$L_n(t) = \sum_{i=1}^{n+1} f(t_i) l_i(t)$$
+    其中 $l_i(t)$ 称为 Lagrange 插值基函数，其表达式为：
+    $$l_i(t) = \frac{(t-t_1) \cdots (t-t_{i-1})(t-t_{i+1}) \cdots (t-t_{n+1})}{(t_i-t_1) \cdots (t_i-t_{i-1})(t_i-t_{i+1}) \cdots (t_i-t_{n+1})}$$
+\end{definition}
+\begin{example}
+    \textbf{（Lagrange 插值的构造原理与线性插值示例）} 
+    Lagrange 插值的核心思想是“拆解与合并”。为了使多项式 $L_n(t)$ 在每个节点 $t_i$ 处均满足 $L_n(t_i) = f(t_i)$，我们构造一组具有“开关”特性的基函数 $l_i(t)$，使其在 $t_i$ 处为 $1$，而在其他节点处均为 $0$。
+    
+    以最简单的两点线性插值为例，给定节点 $(t_1, f_1)$ 和 $(t_2, f_2)$，构造过程如下：
+    
+    1. \textbf{构造基函数}：
+    \begin{itemize}
+        \item 对于节点 $t_1$，要求 $l_1(t_1)=1, l_1(t_2)=0$。利用线性因子构造得：
+        $$l_1(t) = \frac{t - t_2}{t_1 - t_2}$$
+        \item 对于节点 $t_2$，要求 $l_2(t_1)=0, l_2(t_2)=1$。同理可得：
+        $$l_2(t) = \frac{t - t_1}{t_2 - t_1}$$
+    \end{itemize}
+    
+    2. \textbf{线性组合}：
+    将上述“基准插件”按目标高度 $f_i$ 进行加权叠加，即可得到一次插值多项式：
+    $$L_1(t) = f_1 \cdot l_1(t) + f_2 \cdot l_2(t) = f_1 \frac{t - t_2}{t_1 - t_2} + f_2 \frac{t - t_1}{t_2 - t_1}$$
+    
+    \textbf{结论}：这种构造方式确保了当 $t=t_1$ 时，第二项被“关掉”（为 $0$），第一项剩下 $f_1 \cdot 1$；当 $t=t_2$ 时，第一项被“关掉”，结果恰好为 $f_2$。这正是两点直线方程的一种通用表达形式。
+\end{example}
+\begin{dxtips}
+    拉格朗日多项式就是凑出来的未来在特定位置比如t1的时候等于1其他时候等于0，分母就是用来归一化成1的。因为所有项都不是0了。
+\end{dxtips}
+\begin{definition}{Adams 显式法}
+    $k$ 步 Adams 显式法具有如下形式：
+    $$u_{n+k} - u_{n+k-1} = h \sum_{j=0}^{k-1} \beta_j f_{n+j}$$
+    其系数 $\beta_j$ 由下列线性方程组唯一确定：
+    $$\sum_{j=0}^{k-1} j^q \beta_j = \frac{k^{q+1} - (k-1)^{q+1}}{q+1}, \quad q = 0, 1, \dots, k-1$$
+    该方法具有 $k$ 阶精度。
+\end{definition}
+\begin{example}
+    \textbf{（基于 Lagrange 插值积分构造 Adams 系数）} 考虑两步 Adams 显式法，其系数 $\beta_1, \beta_0$ 可通过对经过节点 $t_n, t_{n+1}$ 的 Lagrange 基函数在区间 $[t_{n+1}, t_{n+2}]$ 上积分获得。
+    
+    设 $h=1, t_n=0, t_{n+1}=1, t_{n+2}=2$，则基函数为 $l_0(t) = 1-t, l_1(t) = t$。
+    计算积分可得权重：
+    $$\beta_1 = \int_{1}^{2} t dt = \frac{3}{2}, \quad \beta_0 = \int_{1}^{2} (1-t) dt = -\frac{1}{2}$$
+    若已知 $f_n=10, f_{n+1}=12$，则步进增量为：
+    $$\Delta u = 1 \times \left( \frac{3}{2} \times 12 + (-\frac{1}{2}) \times 10 \right) = 18 - 5 = 13$$
+    此过程体现了 Adams 方法本质上是利用历史数据的 Lagrange 插值进行外推积分。
+\end{example}
+    \begin{dxtips}
+        在线性多步法 $u_{n+k} - u_{n+k-1} = \int f dt$ 中，各项具有明确的物理对应关系：
+\begin{itemize}
+    \item $u$（位移）：对应质点运动的路程。
+    \item $f$（速度）：对应 $u'(t)$，即质点在某一时刻的瞬时速度。
+    \item $dt$（时间元）：对应极小的时间跨度。
+    \item $h$ 就是采样周期或时间步长（Time Step），即 $\Delta t$。
+\end{itemize}
+
+    \end{dxtips}
+
+
+\begin{dxtips}[线性微分方程数值解到底在干什么]所以微分方程数值解我们做的事情实际上是知道一条线的一部分信息，想要通过这个信息把其他的补上有点像dlss通过周边的光用算法补光
+    所以数值格式里最自然能用的东西只有两类：
+
+一类是各节点上的函数值
+\[
+u_n,\;u_{n+1},\;u_{n+2},
+\]
+另一类是各节点上的导数值
+\[
+f_n=f(t_n,u_n),\qquad
+f_{n+1}=f(t_{n+1},u_{n+1}),\qquad
+f_{n+2}=f(t_{n+2},u_{n+2}).
+\]
+
+\end{dxtips}
+\begin{note}
+    因此，两步法最一般可以先写成
+\[
+a_0u_{n+2}+a_1u_{n+1}+a_2u_n
+=
+h\bigl(\beta_0f_{n+2}+\beta_1f_{n+1}+\beta_2f_n\bigr).
+\]
+
+这一步不是猜出来的，而是因为：
+
+两步法只能依赖这三个时刻的信息，而方程本身又只给了 \(u\) 和 \(u'\) 的关系，所以模板只能由这些量线性拼出来。
+\end{note}
+\begin{example}
+现用待定系数法构造一个两步线性多步格式。
+
+设所求格式为
+\[
+u_{n+2}+a\,u_{n+1}+b\,u_n=h\beta f_{n+1},
+\qquad f_{n+1}=u'(t_{n+1}),
+\]
+其中 \(a,b,\beta\) 为待定系数。
+
+将精确解代入，得
+\[
+u(t_{n+2})+a\,u(t_{n+1})+b\,u(t_n)-h\beta\,u'(t_{n+1}).
+\]
+在 \(t_n\) 处作 Taylor 展开：
+\[
+u(t_n+h)=u(t_n)+h\,u'(t_n)+\frac{h^2}{2}\,u''(t_n)+\frac{h^3}{6}\,u'''(t_n)+\cdots,
+\]
+
+\[
+u(t_n+2h)=u(t_n)+2h\,u'(t_n)+2h^2\,u''(t_n)+\frac{4}{3}h^3\,u'''(t_n)+\cdots,
+\]
+
+\[
+h\,u'(t_n+h)=h\left(u'(t_n)+h\,u''(t_n)+\frac{h^2}{2}\,u'''(t_n)+\cdots\right).
+\]
+\begin{dxtips}[ 因为步长就是h也就是Δt，然后有带是h有的是所以会出现不同系数的同类项]
+    \[
+u(t_n+h)=u(t_n)+\frac{h}{1!}u'(t_n)+\frac{h^2}{2!}u''(t_n)+\frac{h^3}{3!}u'''(t_n)+\cdots
+\]
+
+把 \(h\) 换成 \(2h\) 后，就变成
+
+\[
+u(t_n+2h)=u(t_n)+\frac{(2h)}{1!}u'(t_n)+\frac{(2h)^2}{2!}u''(t_n)+\frac{(2h)^3}{3!}u'''(t_n)+\cdots
+\]
+\end{dxtips}
+代入并合并同类项，得
+\[
+(1+a+b)u+(2+a-\beta)hu'
++\left(2+\frac{a}{2}-\beta\right)h^2u''
++\left(\frac{4}{3}+\frac{a}{6}-\frac{\beta}{2}\right)h^3u'''
++\cdots.
+\]
+
+为了使方法至少达到二阶精度，令前面三项系数为零，即
+\[
+\begin{cases}
+1+a+b=0,\\
+2+a-\beta=0,\\
+2+\dfrac{a}{2}-\beta=0.
+\end{cases}
+\]
+解得
+\[
+a=0,\qquad b=-1,\qquad \beta=2.
+\]
+
+因此得到两步格式
+\[
+u_{n+2}-u_n=2h\,f_{n+1}.
+\]
+
+这说明：待定系数法就是先设出格式中的未知系数，再通过 Taylor 展开令低阶误差项消失，从而确定这些系数。
+\end{example}
+\section{1.4}
+\begin{definition}[Taylor展开法]
+Taylor展开法是一种构造常微分方程数值解法的基本方法。其思想是：将精确解 \(u(t)\) 在某一已知点处作 Taylor 展开，保留到适当阶数，并舍去更高阶项，从而得到一个近似计算格式。舍去的高阶项构成该方法的局部截断误差来源。
+
+设常微分方程初值问题为
+\[
+u'(t)=f(t,u),\qquad u(t_0)=u_0.
+\]
+将 \(u(t)\) 在 \(t_0\) 处作 Taylor 展开，可得
+\[
+u(t_0+h)
+=
+u(t_0)
++h\,u'(t_0)
++\frac{h^2}{2!}u''(t_0)
++\cdots
++\frac{h^p}{p!}u^{(p)}(t_0)
++O(h^{p+1}).
+\]
+若能进一步由微分方程求出各阶导数
+\[
+u'(t_0),\ u''(t_0),\ \dots,\ u^{(p)}(t_0),
+\]
+则保留展开式中的前 \(p\) 阶项，便可构造出一个 \(p\) 阶精度的 Taylor 数值方法。
+
+因此，Taylor展开法的核心在于：利用微分方程递推计算高阶导数，并通过保留更多展开项来提高数值方法的精度。
+\end{definition}
+\begin{note}
+    Taylor展开法是“先展开精确解，再直接截断，做出方法”。
+
+⸻
+
+2. 刚才的待定系数法是在“拿 Taylor 展开来挑系数”
+
+\end{note}
+\begin{example}
+用 Taylor 展开法求初值问题
+\[
+u'(t)=u(t),\qquad u(0)=1
+\]
+在 \(t_1=0.1\) 处的近似值。
+
+由 Taylor 展开，
+\[
+u(t_0+h)=u(t_0)+h\,u'(t_0)+\frac{h^2}{2}u''(t_0)+O(h^3).
+\]
+这里取
+\[
+t_0=0,\qquad h=0.1.
+\]
+由方程 \(u'(t)=u(t)\) 可得
+\[
+u'(0)=u(0)=1,\qquad u''(t)=u'(t)=u(t),
+\]
+所以
+\[
+u''(0)=1.
+\]
+代入展开式，得
+\[
+u(0.1)\approx u(0)+0.1\,u'(0)+\frac{0.1^2}{2}u''(0)
+\]
+\[
+=1+0.1+\frac{0.01}{2}
+=1.105.
+\]
+
+因此，用二阶 Taylor 展开法得到
+\[
+u_1\approx 1.105.
+\]
+
+这说明：Taylor 展开法就是在已知点附近，把解写成多项式近似，并利用微分方程计算高阶导数，从而得到更高精度的近似值。
+\end{example}
+\begin{definition}[Runge--Kutta 方法]
+Runge--Kutta 方法是一类单步数值方法，用于求解常微分方程初值问题
+\[
+u'(t)=f(t,u),\qquad u(t_0)=u_0.
+\]
+其基本思想是：在一个步长内，不直接计算高阶导数，而是选取若干个中间点，利用函数 \(f(t,u)\) 在这些点的取值作适当加权平均，从而构造出较高精度的数值格式。
+
+一般地，\(s\) 阶段的 Runge--Kutta 方法可写为
+\[
+u_{n+1}=u_n+h\sum_{i=1}^s b_i k_i,
+\]
+其中
+\[
+k_i=f\!\left(t_n+c_i h,\;u_n+h\sum_{j=1}^s a_{ij}k_j\right),
+\qquad i=1,2,\dots,s.
+\]
+这里 \(k_i\) 称为各阶段斜率，\(a_{ij},b_i,c_i\) 为方法的系数。
+
+因此，Runge--Kutta 方法的核心在于：通过组合一个步长内多个点处的斜率信息，来近似真实解在该步内的变化，从而在不显式求高阶导数的情况下提高数值解的精度。
+\end{definition}
+\begin{example}
+用二阶 Runge--Kutta 方法求初值问题
+\[
+u'(t)=u(t),\qquad u(0)=1
+\]
+在 \(t_1=0.1\) 处的近似值。
+
+取步长
+\[
+h=0.1.
+\]
+二阶 Runge--Kutta 方法为
+\[
+\begin{cases}
+k_1=f(t_n,u_n),\\
+k_2=f(t_n+h,\;u_n+h k_1),\\
+u_{n+1}=u_n+\dfrac{h}{2}(k_1+k_2).
+\end{cases}
+\]
+
+这里
+\[
+f(t,u)=u,\qquad t_0=0,\qquad u_0=1.
+\]
+先计算
+\[
+k_1=f(0,1)=1.
+\]
+再计算
+\[
+k_2=f(0.1,\;1+0.1\cdot 1)=f(0.1,1.1)=1.1.
+\]
+于是
+\[
+u_1=u_0+\frac{0.1}{2}(k_1+k_2)
+=1+\frac{0.1}{2}(1+1.1)
+=1+0.105
+=1.105.
+\]
+
+因此，在 \(t_1=0.1\) 处的近似值为
+\[
+u(0.1)\approx 1.105.
+\]
+
+这说明：Runge--Kutta 方法通过组合两个点上的斜率信息，得到比 Euler 方法更高精度的近似值。
+\end{example}
+\begin{dxtips}[记住这个是二元函数两个变量]
+    我理解一下是不是就是我从1，2这个点要算下一步横坐标+2页就是步长求下一个点的y值是什么，然后我不用1，2点的导数但是我用1,1.1 1.2 1.3等点的斜率加权平均当作这个点的导数算下一个点对吗
+\end{dxtips}
+\begin{dxtips}
+    所以这些方法本质就是利用沿途点的信息更准确的预测要求点的信息，然后用泰勒展开确定每一个点点权重也就是系数
+\end{dxtips}
+\begin{note}
+Runge--Kutta 方法中的系数不是直接规定的，而是通过 Taylor 展开确定的。做法是：先设出一个含待定系数的格式，再把数值解公式与精确解分别在 \(t_n\) 附近展开，令同阶项的系数对应相等，从而确定这些权重。
+
+对于二阶 Runge--Kutta 方法，其思想是：在一个步长内取两个不同点处的斜率信息，加权平均后近似这一小段上的总体变化率。为了使该近似在 \(h\) 和 \(h^2\) 两阶上都与精确解一致，就要通过 Taylor 展开来选取这些系数。
+
+因此，Runge--Kutta 方法本质上也是一种待定系数的思想：先设模板，再用 Taylor 展开配系数，使低阶误差项消失，从而达到所要求的精度。
+\end{note}
