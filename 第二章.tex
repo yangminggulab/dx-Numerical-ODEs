@@ -653,3 +653,145 @@ S_{\triangle P_0P_4P_1}=1,
 \]
 格林公式将 $P_0$ 处的二阶算子转化为边界上的一阶法向导数，余切系数 $c_i$ 来自几何化简中的面积与距离关系。
 \end{note}
+\chapter{抛物型差分}
+\begin{definition}[抛物型方程的有限差分法]
+设抛物型方程（热传导方程）为
+\[
+\frac{\partial u}{\partial t} = a^2 \frac{\partial^2 u}{\partial x^2}, \quad x \in (0,1),\ t > 0
+\]
+将空间步长取为 $h$，时间步长取为 $\tau$，网格节点为 $(x_i, t_k) = (ih, k\tau)$，记 $u_i^k \approx u(x_i, t_k)$。用差商代替偏导数：
+\[
+\frac{\partial u}{\partial t} \approx \frac{u_i^{k+1} - u_i^k}{\tau}, \qquad \frac{\partial^2 u}{\partial x^2} \approx \frac{u_{i-1}^k - 2u_i^k + u_{i+1}^k}{h^2}
+\]
+代入方程，得\textbf{显式差分格式}（向前差分）：
+\[
+u_i^{k+1} = u_i^k + r\left(u_{i-1}^k - 2u_i^k + u_{i+1}^k\right), \quad r = \frac{a^2 \tau}{h^2}
+\]
+其中 $r$ 称为\textbf{网格比}。该格式稳定的条件为 $r \leq \dfrac{1}{2}$。
+\end{definition}
+\begin{example}
+椭圆型方程描写的状态（如温度、电位等）不随时间 $t$ 改变，称为\textbf{驻定问题}。现在我们讨论与时间 $t$ 有关的非驻定问题。
+
+驻定问题可看成是某一非驻定问题当 $t \to \infty$ 时的渐进状态。所以求解驻定问题只关心最终状态。而非驻定问题的瞬时状态有物理意义，需要我们进行求解。接下来我们讨论有时间相关的非驻定问题：抛物型方程和双曲型方程。
+
+\textbf{典型例子：一维热扩散方程。}设均匀细杆的温度分布 $u(x,t)$ 满足
+\[
+\frac{\partial u}{\partial t} = a^2 \frac{\partial^2 u}{\partial x^2}, \quad x \in (0,L),\ t > 0
+\]
+附初始条件 $u(x,0) = \varphi(x)$ 及边界条件 $u(0,t) = u(L,t) = 0$。此即一个典型的抛物型非驻定问题：每一时刻 $t$ 的温度分布 $u(x,t)$ 均有物理意义，而当 $t \to \infty$ 时温度趋于稳态（驻定）分布。
+\end{example}
+\begin{center}
+    \textbf{显式差分格式取点示意图（向前差分）}\\[0.5em]
+    \includegraphics[width=0.5\linewidth]{image/parabola.png}
+\end{center}
+\begin{note}
+原方程为
+\[
+\frac{\partial u}{\partial t} = a^2 \frac{\partial^2 u}{\partial x^2}
+\]
+代入两个差商：
+\[
+\frac{u_i^{k+1} - u_i^k}{\tau} = a^2 \cdot \frac{u_{i-1}^k - 2u_i^k + u_{i+1}^k}{h^2}
+\]
+两边乘以 $\tau$：
+\[
+u_i^{k+1} - u_i^k = \frac{a^2 \tau}{h^2} \cdot \left(u_{i-1}^k - 2u_i^k + u_{i+1}^k\right)
+\]
+移项得显式差分格式：
+\[
+u_i^{k+1} = u_i^k + r\left(u_{i-1}^k - 2u_i^k + u_{i+1}^k\right), \quad r = \frac{a^2 \tau}{h^2}
+\]
+其中 $h$ 并未消失，而是与 $\tau$、$a^2$ 合并为网格比 $r$。$r$ 的大小反映了时间步长与空间步长的比例关系，直接影响格式的稳定性，稳定条件为 $r \leq \dfrac{1}{2}$。
+\end{note}
+\begin{definition}[向后差分格式（隐式格式）]
+将时间导数用向后差商近似，空间二阶导数取第 $n+1$ 层（未知层），得隐式差分格式：
+\[
+\frac{u_j^{n+1} - u_j^n}{\tau} = a\frac{u_{j+1}^{n+1} - 2u_j^{n+1} + u_{j-1}^{n+1}}{h^2} + f_j
+\]
+其中 $j = 1,2,\cdots,J-1$，$n = 0,1,\cdots,N-1$，$r = a\tau/h^2$ 为网格比。整理得便于计算的形式：
+\[
+-ru_{j+1}^{n+1} + (1+2r)u_j^{n+1} - ru_{j-1}^{n+1} = u_j^n + \tau f_j
+\]
+每一时间步需联立方程组求解。该格式无条件稳定，对任意 $r > 0$ 均收敛，无需限制 $r \leq \dfrac{1}{2}$。
+\end{definition}
+\begin{dxtips}[椭圆方程与抛物线方程的区别]
+  椭圆方程是 $\dfrac{\partial^2 u}{\partial x^2}$ 和 $\dfrac{\partial^2 u}{\partial y^2}$ 组成的等式，上下取两个才能得到 $\dfrac{\partial^2 u}{\partial y^2}$，左右取两个做差才能得到 $\dfrac{\partial^2 u}{\partial x^2}$。但是抛物线是 $\dfrac{\partial^2 u}{\partial x^2}$ 与 $\dfrac{\partial u}{\partial t}$，左右取就是为了出 $\dfrac{\partial^2 u}{\partial x^2}$，上面只用取一个因为就是一阶导。
+\end{dxtips}
+\begin{definition}[六点对称格式（Crank-Nicolson 格式）]
+将空间二阶差商取第 $n$ 层与第 $n+1$ 层的平均，得六点对称差分格式：
+\[
+\frac{u_j^{n+1} - u_j^n}{\tau} = \frac{a}{2}\left[\frac{u_{j+1}^{n+1} - 2u_j^{n+1} + u_{j-1}^{n+1}}{h^2} + \frac{u_{j+1}^{n} - 2u_j^{n} + u_{j-1}^{n}}{h^2}\right] + f_j
+\]
+其中 $f_j = f(x_j)$，初边值条件为 $u_j^0 = \phi_j = \phi(x_j)$，$u_0^n = u_J^n = 0$，$j = 1,2,\cdots,J-1$，$n = 0,1,\cdots,N-1$，$r = a\tau/h^2$ 为网格比。整理得便于计算的形式：
+\[
+-\frac{r}{2}u_{j+1}^{n+1} + (1+r)u_j^{n+1} - \frac{r}{2}u_{j-1}^{n+1} = \frac{r}{2}u_{j+1}^n + (1-r)u_j^n + \frac{r}{2}u_{j-1}^n + \tau f_j
+\]
+该格式为隐式与显式格式各取一半的平均，每步需联立方程组求解，时间方向具有二阶精度，且无条件稳定。
+\end{definition}
+\begin{definition}[Richardson 迭代格式（不稳定反例）]
+时间方向采用中心差商（跨两层），空间方向取第 $n$ 层，得 Richardson 格式：
+\[
+\frac{u_j^{n+1} - u_j^{n-1}}{2\tau} = a\frac{u_{j+1}^{n} - 2u_j^{n} + u_{j-1}^{n}}{h^2} + f_j
+\]
+其中 $f_j = f(x_j)$，初边值条件为 $u_j^0 = \phi_j = \phi(x_j)$，$u_0^n = u_J^n = 0$，$j = 1,2,\cdots,J-1$，$n = 0,1,\cdots,N-1$，$r = a\tau/h^2$ 为网格比。整理得便于计算的形式：
+\[
+u_j^{n+1} = r\left(u_{j+1}^n - 2ru_j^n + u_{j-1}^n\right) + u_j^{n-1} + 2\tau f_j
+\]
+该格式时间方向具有二阶精度，但\textbf{无条件不稳定}——无论网格比 $r$ 取何值均发散，不可用于实际计算，通常作为反例说明精度高不等于稳定性好。
+\end{definition}
+\chapter{稳定性}
+\begin{definition}[稳定性]
+前面介绍的求解格式都可以用矩阵和向量的符号表示成
+$$
+AU^{n+1} = BU^n + \tau F,
+$$
+其中 $U^n = (u_1^n,\cdots,u_{J-1}^n)$，$F^n = (f_1^n,\cdots,f_{J-1}^n)$。假设 $A$ 可逆，令 $C = A^{-1}B$，则方程化为
+$$
+U^{n+1} = CU^n + \tau A^{-1}F,
+$$
+其中 $C$ 称为\textbf{增长矩阵}。
+
+设初始误差为 $e^0$，经 $n$ 步迭代后误差传播为 $C^n e^0$。若 $C$ 的所有特征值 $\lambda_i$ 满足
+$$
+|\lambda_i| \leq 1,
+$$
+则误差不随迭代增长，称该格式是\textbf{稳定的}。定义增长矩阵的\textbf{谱半径}为
+$$
+\rho(C) = \max_i |\lambda_i|,
+$$
+则稳定性条件等价于 $\rho(C) \leq 1$。
+\end{definition}
+\begin{note}
+都在做同一件事：把差分格式统一写成 $U^{n+1} = CU^n$ 的矩阵迭代形式，好处是可以用谱半径 $\rho(C) \leq 1$ 统一判断稳定性。三个格式的区别：
+\begin{itemize}
+    \item \textbf{向前（显式）：} $A=I$，所以 $C=B$ 直接得到，不用解方程，但稳定性有条件限制 $r \leq \dfrac{1}{2}$。
+    \item \textbf{向后（隐式）：} $A \neq I$，每步要解线性方程组，但 $\rho(C) \leq 1$ 对任意 $r$ 成立，无条件稳定。
+    \item \textbf{Richardson（三层）：} 涉及 $U^{n+1}, U^n, U^{n-1}$ 三个时间层，直接套两层框架不行。引入 $W^n = (U^n, U^{n-1})^T$ 把它降维成两层，就又能用统一框架分析了。
+\end{itemize}
+\end{note}
+\begin{example}
+取 $J=3$，只有两个内部节点 $u_1, u_2$，显式格式为
+$$
+u_j^{n+1} = ru_{j+1}^n + (1-2r)u_j^n + ru_{j-1}^n.
+$$
+对 $j=1$，边界条件 $u_0^n = 0$，故
+$$
+u_1^{n+1} = (1-2r)u_1^n + ru_2^n.
+$$
+对 $j=2$，边界条件 $u_3^n = 0$，故
+$$
+u_2^{n+1} = ru_1^n + (1-2r)u_2^n.
+$$
+写成矩阵迭代形式：
+$$
+\begin{pmatrix} u_1^{n+1} \\ u_2^{n+1} \end{pmatrix} = \begin{pmatrix} 1-2r & r \\ r & 1-2r \end{pmatrix} \begin{pmatrix} u_1^n \\ u_2^n \end{pmatrix},
+$$
+即 $U^{n+1} = CU^n$，其中增长矩阵 $C$ 的对角线为 $1-2r$（自身系数），次对角线为 $r$（左右邻居系数），边界处邻居为 $0$ 故对应项消去。
+\end{example}
+\begin{dxtips}
+就是不管是什么迭代，基底都是一样的，只不过组合的方式不一样。$C$ 的特征向量就是"基底"，任何初始误差 $e^0$ 都可以分解成这组基底的线性组合：
+$$e^0 = \sum_k c_k v_k.$$
+每步迭代后：
+$$C^n e^0 = \sum_k c_k \lambda_k^n v_k.$$
+基底 $v_k$ 永远不变，变的只是每个分量的权重 $c_k \lambda_k^n$。稳定性分析就是看这些权重会不会爆炸，也就是 $|\lambda_k| \leq 1$。这其实和傅里叶分析是同一个思想——把复杂的误差分解成简单模式的叠加，每个模式独立演化。
+\end{dxtips}
