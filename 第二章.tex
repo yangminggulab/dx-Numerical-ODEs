@@ -795,3 +795,402 @@ $$e^0 = \sum_k c_k v_k.$$
 $$C^n e^0 = \sum_k c_k \lambda_k^n v_k.$$
 基底 $v_k$ 永远不变，变的只是每个分量的权重 $c_k \lambda_k^n$。稳定性分析就是看这些权重会不会爆炸，也就是 $|\lambda_k| \leq 1$。这其实和傅里叶分析是同一个思想——把复杂的误差分解成简单模式的叠加，每个模式独立演化。
 \end{dxtips}
+\begin{definition}[Fourier方法]
+定义函数 $u$ 关于空间的Fourier变换为
+$$\tilde{u}(\omega,t) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^{+\infty} u(x,t)e^{-\mathrm{i}\omega x}\,dx,$$
+逆Fourier变换为
+$$u(x,t) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^{+\infty} \tilde{u}(\omega,t)e^{\mathrm{i}\omega x}\,d\omega.$$
+Fourier变换的一个形式是Parseval等式，即
+$$\|u\|_{L_2} = \|\tilde{u}\|_{L_2}.$$
+\end{definition}
+\begin{example}[热传导方程的向后差分格式稳定性验证]
+一根长度无限的金属棒，初始温度分布为 $u(x,0) = \sin(\pi x)$，热传导系数为 $1$，即热方程为 $u_t = u_{xx}$。取步长 $\Delta x = 0.5$，$\Delta t = 0.25$，则
+$$r = \frac{\Delta t}{(\Delta x)^2} = \frac{0.25}{0.25} = 1.$$
+用向后差分格式推进一步。
+
+\textbf{第一步：写出格式}
+
+$$-u_{j+1}^{n+1} + 3u_j^{n+1} - u_{j-1}^{n+1} = u_j^n$$
+
+\textbf{第二步：初始值}
+
+$u_j^0 = \sin(j\pi/2)$，故 $u_{-1}^0 = -1$，$u_0^0 = 0$，$u_1^0 = 1$，$u_2^0 = 0$。
+
+\textbf{第三步：Fourier变换验证稳定性}
+
+初始分布对应频率 $\xi = \pi/2$，增长因子为
+$$G\!\left(\frac{\pi}{2}\right) = \frac{1}{1 + 4\sin^2\dfrac{\pi}{4}} = \frac{1}{1+4\cdot\dfrac{1}{2}} = \frac{1}{3} \approx 0.333.$$
+
+\textbf{第四步：推进一步}
+
+$j=1$ 处：$-u_2^1 + 3u_1^1 - u_0^1 = u_1^0 = 1$。由对称性 $u_0^1 = 0$，$u_2^1 = 0$，直接得
+$$u_1^1 = \frac{1}{3} \approx 0.333.$$
+与增长因子完全吻合：$u_1^1 = G \cdot u_1^0 = \dfrac{1}{3} \times 1 = \dfrac{1}{3}$。温度从 $1$ 衰减到 $0.333$，热量向两侧扩散，峰值下降，物理上正确。
+\end{example}
+\begin{note}
+\textbf{核心思想：把算子对角化}
+
+线性PDE（或差分格式）本质上是一个线性算子 $L$ 作用在函数上。直接分析很难，因为 $u_j$ 之间互相耦合。Fourier方法的想法是：找一组基，使得 $L$ 在这组基下是对角矩阵——每个基向量都是 $L$ 的特征函数。
+
+对平移不变的算子（系数不依赖 $x$），这组基恰好就是 $e^{\mathrm{i}j\xi}$。原因是平移算子 $T: u_j \mapsto u_{j+1}$ 满足
+$$T e^{\mathrm{i}j\xi} = e^{\mathrm{i}(j+1)\xi} = e^{\mathrm{i}\xi} \cdot e^{\mathrm{i}j\xi},$$
+特征值就是 $e^{\mathrm{i}\xi}$，不同频率完全不耦合。
+
+\textbf{推广：连续PDE上的Fourier方法}
+
+对热方程 $u_t = u_{xx}$，设 $u(x,t) = \hat{u}(\xi,t)e^{\mathrm{i}\xi x}$，代入得
+$$\frac{d\hat{u}}{dt} = -\xi^2 \hat{u},$$
+解为 $\hat{u}(\xi,t) = \hat{u}(\xi,0)e^{-\xi^2 t}$。每个频率独立衰减，高频衰减更快——这正是热方程的磨光性质，Fourier方法让它一目了然。
+\end{note}
+\begin{note}
+    
+\textbf{再推广：Von Neumann稳定性分析}
+
+这个例子的 $|G(\xi)| \leq 1$ 对所有 $\xi$ 成立，所以无条件稳定。这就是Von Neumann稳定性分析的完整流程：
+\begin{itemize}
+    \item 对差分格式取离散Fourier变换；
+    \item 解出增长因子 $G(\xi)$；
+    \item 检验是否对所有 $\xi$ 有 $|G(\xi)| \leq 1$。
+\end{itemize}
+这个方法之所以有效，前提是格式是\textbf{线性的、系数常数的}——正好保证了Fourier基是特征函数，不同频率不耦合。一旦系数依赖 $x$（变系数PDE），Fourier方法就失效了，需要换其他工具。
+\end{note}
+\chapter{双曲型}
+\begin{definition}[双曲型方程的有限差分法]
+设双曲型方程（波动方程）为
+\[
+\frac{\partial^2 u}{\partial t^2} = a^2 \frac{\partial^2 u}{\partial x^2}, \quad x \in (0,1),\ t > 0
+\]
+将空间步长取为 $h$，时间步长取为 $\tau$，网格节点为 $(x_i, t_k) = (ih, k\tau)$，记 $u_i^k \approx u(x_i, t_k)$。用差商代替偏导数：
+\[
+\frac{\partial^2 u}{\partial t^2} \approx \frac{u_i^{k+1} - 2u_i^k + u_i^{k-1}}{\tau^2}, \qquad \frac{\partial^2 u}{\partial x^2} \approx \frac{u_{i-1}^k - 2u_i^k + u_{i+1}^k}{h^2}
+\]
+代入方程，得\textbf{显式差分格式}：
+\[
+u_i^{k+1} = 2u_i^k - u_i^{k-1} + r^2\left(u_{i-1}^k - 2u_i^k + u_{i+1}^k\right), \quad r = \frac{a\tau}{h}
+\]
+其中 $r$ 称为\textbf{Courant数}。该格式稳定的条件为 $r \leq 1$，即CFL条件。
+\end{definition}
+\begin{center}
+    \textbf{显式差分格式取点示意图（向前差分）}\\[0.5em]
+    \includegraphics[width=0.5\linewidth]{image/shuangqu.png}
+\end{center}
+\begin{note}
+
+物理直觉：把 $u(x,t)$ 想象成一根绳子上的波形，$a$ 是波速。
+方程说的就是：波形整体以速度 $a$ 向右平移，形状不变。
+
+\begin{center}
+    \textbf{波峰连成的线上 $u$ 值一直不变，就是峰值}\\[0.5em]
+    \includegraphics[width=0.5\linewidth]{image/special-wave.png}
+\end{center}
+
+特征线就是波峰（或波上任意一点）的运动轨迹，当然沿轨迹值不变——你跟着波跑，看到的始终是同一个值。
+
+\end{note}
+
+\begin{definition}{von Neumann 稳定性分析}{von_neumann}
+设差分格式的数值解可写成 Fourier 模式的叠加。对每个频率 $\xi$，设
+\[
+u_j^n = V^n \exp(ij\xi),
+\]
+代入差分格式后得到振幅的递推关系
+\[
+\begin{pmatrix} V_1^{n+1} \\ V_2^{n+1} \end{pmatrix}
+= G(\xi)
+\begin{pmatrix} V_1^{n} \\ V_2^{n} \end{pmatrix},
+\]
+其中 $G(\xi)$ 称为\textbf{增长矩阵}（amplification matrix）。称差分格式是 \textbf{von Neumann 稳定}的，若对所有频率 $\xi$ 均有
+\[
+\rho\bigl(G(\xi)\bigr) \leq 1,
+\]
+其中 $\rho(\cdot)$ 表示矩阵的谱半径。
+\end{definition}
+
+\begin{note}
+谱半径条件 $\rho(G(\xi)) \leq 1$ 的含义是：每走一个时间步，
+Fourier 模式的振幅不放大，从而误差不会随时间步进而爆炸增长。
+走 $n$ 步后振幅变为 $G(\xi)^n \begin{pmatrix}V_1^0 \\ V_2^0\end{pmatrix}$，
+若 $\rho(G) > 1$ 则此量随 $n \to \infty$ 无界。
+\end{note}
+
+\begin{example}{一阶对流方程迎风格式的稳定性}
+考虑一阶对流方程
+\[
+u_t + a u_x = 0, \quad a > 0,
+\]
+采用向前时间、向后空间的迎风差分格式（FTBS）：
+\[
+\frac{u_j^{n+1} - u_j^n}{\tau} + a\frac{u_j^n - u_{j-1}^n}{h} = 0.
+\]
+引入辅助量
+\[
+v_j^n = \frac{u_j^n - u_j^{n-1}}{\tau}, \quad
+w_{j-1/2}^{n+1} = a\,\frac{u_j^{n+1} - u_{j-1}^{n+1}}{h},
+\]
+分别为时间方向与空间方向的差商。
+
+\noindent\textbf{第一步：Fourier 假设。}
+设
+\[
+v_j^n = V_1^n \exp(ij\xi), \quad w_j^n = V_2^n \exp(ij\xi).
+\]
+
+\noindent\textbf{第二步：代入格式，整理增长因子。}
+将格式改写为
+\[
+u_j^{n+1} = u_j^n - r\left(u_j^n - u_{j-1}^n\right), \quad r = \frac{a\tau}{h}.
+\]
+代入 $u_j^n = V^n \exp(ij\xi)$，得
+\[
+V^{n+1} e^{ij\xi}
+= V^n e^{ij\xi} - r\,V^n\left(e^{ij\xi} - e^{i(j-1)\xi}\right)
+= V^n e^{ij\xi}\left(1 - r + r\,e^{-i\xi}\right),
+\]
+故标量增长因子为
+\[
+g(\xi) = 1 - r\left(1 - e^{-i\xi}\right).
+\]
+
+\noindent\textbf{第三步：稳定性条件。}
+计算模长平方：
+\[
+\left|g(\xi)\right|^2
+= \left(1 - r + r\cos\xi\right)^2 + \left(r\sin\xi\right)^2
+= 1 - 2r(1-r)(1-\cos\xi).
+\]
+要使 $|g(\xi)| \leq 1$ 对所有 $\xi$ 成立，需
+\[
+2r(1-r)(1-\cos\xi) \geq 0.
+\]
+由于 $1 - \cos\xi \geq 0$，故只需 $r(1-r) \geq 0$，即
+\[
+0 \leq r \leq 1.
+\]
+因此稳定性条件为
+\[
+\rho\!\left(G(\xi)\right) \leq 1
+\iff
+r = \frac{a\tau}{h} \leq 1.
+\]
+这正是 \textbf{CFL 条件}：波速 $a$ 在一个时间步内传播的距离不超过一个空间步长 $h$。
+\end{example}
+\begin{definition}{CFL 条件}{cfl}
+设差分格式的空间步长为 $h$，时间步长为 $\tau$，方程的波速为 $a$，定义
+\[
+r = \frac{a\tau}{h},
+\]
+称 $r$ 为 \textbf{CFL 数}（Courant--Friedrichs--Lewy number）。称差分格式满足 \textbf{CFL 条件}，若
+\[
+r = \frac{a\tau}{h} \leq 1.
+\]
+其物理意义为：波速 $a$ 在一个时间步 $\tau$ 内传播的距离 $a\tau$ 不超过一个空间步长 $h$，
+即数值信息的传播速度不慢于物理信息的传播速度。
+\end{definition}
+
+\begin{note}
+CFL 条件是显式差分格式稳定的\textbf{必要条件}。对迎风格式（FTBS），
+它同时也是充分条件，即
+\[
+\text{格式稳定} \iff r \leq 1.
+\]
+若 $r > 1$，则增长因子满足 $|g(\xi)| > 1$，误差随时间步指数增长，数值解发散。
+\end{note}
+\begin{example}{波动方程的隐式差分格式}
+考虑波动方程
+\[
+u_{tt} = a^2 u_{xx}.
+\]
+用第 $n-1$、$n$、$n+1$ 层的中心差商对 $u_{xx}$ 作加权逼近，得到如下差分格式：
+\[
+\frac{u_j^{n+1} - 2u_j^n + u_j^{n-1}}{\tau^2}
+= a^2 \left[
+\theta\,\frac{u_{j+1}^{n+1} - 2u_j^{n+1} + u_{j-1}^{n+1}}{h^2}
++ (1-2\theta)\,\frac{u_{j+1}^{n} - 2u_j^{n} + u_{j-1}^{n}}{h^2}
++ \theta\,\frac{u_{j+1}^{n-1} - 2u_j^{n-1} + u_{j-1}^{n-1}}{h^2}
+\right],
+\]
+其中 $0 \leq \theta \leq 1$ 为参数，三层权重之和为 $\theta + (1-2\theta) + \theta = 1$。
+
+\noindent\textbf{特殊情形。}
+\begin{itemize}
+    \item $\theta = 0$：退化为显格式，右端仅含第 $n$ 层，无需解方程组，
+    但需满足 CFL 条件 $r = \dfrac{a\tau}{h} \leq 1$ 才能稳定。
+    \item $\theta = \dfrac{1}{4}$：格式恒稳定，对任意步长比 $r$ 均有
+    $\rho\!\left(G(\xi)\right) \leq 1$，无需 CFL 限制，但每步需求解线性方程组。
+\end{itemize}
+
+\noindent\textbf{稳定性结论。}对该格式作 von Neumann 分析，
+代入 $u_j^n = V^n \exp(ij\xi)$，可得增长矩阵的谱半径满足
+\[
+\rho\!\left(G(\xi)\right) \leq 1
+\iff
+\theta \geq \frac{1}{4} \quad \text{或} \quad
+\left(\theta < \frac{1}{4} \ \text{且} \ r \leq \frac{1}{\sqrt{1-4\theta}}\right).
+\]
+特别地，当 $\theta \geq \dfrac{1}{4}$ 时格式\textbf{恒稳定}，与步长无关。
+\end{example}
+
+\begin{note}
+隐式格式的代价是每步需求解三对角线性方程组；
+显式格式每步直接递推，但步长受 CFL 条件约束。
+$\theta$ 在两者之间插值：$\theta$ 越大，隐式成分越强，稳定性越好，
+计算代价也越高。
+\end{note}
+\subsection{4.2}
+\begin{definition}{迎风格式}{upwind}
+对线性对流方程 $\dfrac{\partial u}{\partial t} + a\dfrac{\partial u}{\partial x} = 0$，
+用插商代替微商，按空间差分方向的不同得到三种格式：
+
+\textbf{左偏心格式}（向后差分）：
+\[
+\frac{u_j^{n+1} - u_j^n}{\tau} + a\frac{u_j^n - u_{j-1}^n}{h} = 0
+\]
+
+\textbf{右偏心格式}（向前差分）：
+\[
+\frac{u_j^{n+1} - u_j^n}{\tau} + a\frac{u_{j+1}^n - u_j^n}{h} = 0
+\]
+
+\textbf{中心差分格式}：
+\[
+\frac{u_j^{n+1} - u_j^n}{\tau} + a\frac{u_{j+1}^n - u_{j-1}^n}{2h} = 0
+\]
+\end{definition}
+\begin{note}
+三种格式的空间差分方向不同，本质是对 $\dfrac{\partial u}{\partial x}$ 在 $x_j$ 处的逼近方式不同。
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+格式 & 用哪侧信息 & 截断误差 \\
+\hline
+左偏心 & $x_{j-1}, x_j$（左侧） & $O(\tau + h)$ \\
+右偏心 & $x_j, x_{j+1}$（右侧） & $O(\tau + h)$ \\
+中心差分 & $x_{j-1}, x_{j+1}$（两侧） & $O(\tau + h^2)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+稳定性与物理一致性的关键区别：
+\begin{itemize}
+    \item $a > 0$ 时信息从左向右传播，应取\textbf{左偏心格式}，稳定条件为 $\dfrac{a\tau}{h} \leq 1$。
+    \item $a > 0$ 时若用\textbf{右偏心格式}，逆着信息传播方向取差，数值上\textbf{无条件不稳定}。
+    \item \textbf{中心差分格式}精度高一阶，但对纯对流方程同样\textbf{无条件不稳定}。
+\end{itemize}
+
+"迎风"的含义：差分方向要顺着特征线传播的方向取，即迎着信息来的方向。
+\end{note}
+\begin{note}
+对流方程 $u_t + au_x = 0$ 的三种差分格式，按 Fourier 方法可得增长因子分别为
+\[
+\lambda_1 = r e^{-i\xi} + (1-r), \quad
+\lambda_2 = (1+r) - r e^{i\xi}, \quad
+\lambda_3 = 1 - ir\sin\xi,
+\]
+其中 $r = \dfrac{a\tau}{h}$，对应格式如下：
+
+\begin{center}
+\begin{tabular}{cll}
+\toprule
+格式 & 增长因子 & 离散方式 \\
+\midrule
+格式1 & $\lambda_1 = re^{-i\xi} + (1-r)$ & 向前时间 + 向后空间（迎风） \\
+格式2 & $\lambda_2 = (1+r) - re^{i\xi}$ & 向前时间 + 向前空间 \\
+格式3 & $\lambda_3 = 1 - ir\sin\xi$ & 向前时间 + 中心空间 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\textbf{格式3 始终不稳定。}计算模长平方：
+\[
+|\lambda_3|^2 = 1 + r^2\sin^2\xi \geq 1,
+\]
+等号仅在 $\sin\xi = 0$ 时成立。因此对任意 $r > 0$ 和一般频率 $\xi$，
+均有 $|\lambda_3| > 1$，误差随时间步指数增长，格式恒不稳定。
+
+\noindent\textbf{直觉。}对流方程的信息沿 $a > 0$ 方向单向传播，
+迎风格式（格式1）只用上游的点，符合信息传播方向；
+中心差分（格式3）对称地使用左右两侧的点，引入了逆流方向的虚假信息，
+导致数值能量持续增长。
+\end{note}
+\begin{dxtips}
+    
+
+格式1 与格式2 的稳定性充要条件如下。
+\begin{itemize}
+    \item \textbf{格式1}（迎风格式，$\lambda_1 = re^{-i\xi} + (1-r)$）：
+    计算模长平方
+    \[
+    |\lambda_1|^2 = 1 - 2r(1-r)(1-\cos\xi),
+    \]
+    要使 $|\lambda_1| \leq 1$ 对所有 $\xi$ 成立，需 $r(1-r) \geq 0$，即
+    \[
+    \text{格式1 稳定} \iff 0 \leq r \leq 1.
+    \]
+
+    \item \textbf{格式2}（向前空间，$\lambda_2 = (1+r) - re^{i\xi}$）：
+    计算模长平方
+    \[
+    |\lambda_2|^2 = 1 + 2r(1+r)(1-\cos\xi),
+    \]
+    由于 $r > 0$ 时上式恒大于 $1$，故
+    \[
+    \text{格式2 对任意 } r > 0 \text{ 均不稳定}.
+    \]
+\end{itemize}
+\end{dxtips}
+\begin{definition}{特征线}{characteristic_line}
+对对流方程 $u_t + au_x = 0$，称满足
+\[
+\frac{dt}{dx} = \frac{1}{a}
+\]
+的曲线为\textbf{特征线}。沿特征线，解 $u$ 保持常数，即
+\[
+u(x(t), t) = \text{常数}.
+\]
+\end{definition}
+
+\begin{theorem}{依存域条件与稳定性}{domain_dependence}
+差分格式稳定的几何充要条件为：\textbf{差分方程的依存域包含微分方程的依存域}，
+即从 $P_0(j, n+1)$ 出发沿特征线向后追踪到第 $n$ 层的交点 $Q$，
+必须落在插值所用的网格点之间。
+
+对格式1（$a > 0$），$Q$ 落在 $Q_{-1}(j-1, n)$ 与 $Q_0(j, n)$ 之间当且仅当
+\[
+0 \leq r = \frac{a\tau}{h} \leq 1.
+\]
+\end{theorem}
+
+\begin{note}
+特征线方法给出了迎风格式的几何推导。当 $a > 0$ 时，
+从 $P_0$ 沿特征线回溯交第 $n$ 层于 $Q$，
+用 $Q_{-1}(j-1,n)$ 与 $Q_0(j,n)$ 做线性插值：
+\[
+u_j^{n+1} = u_Q
+\approx \frac{u_{j-1}^n \cdot a\tau + u_j^n(h - a\tau)}{h}
+= r u_{j-1}^n + (1-r)u_j^n.
+\]
+若 $r > 1$，则 $Q$ 落在 $Q_{-1}$ 左侧，插值退化为外推，误差爆炸。
+$a < 0$ 时特征线偏右，对称地用 $Q_0(j,n)$ 与 $Q_1(j+1,n)$ 插值。
+\end{note}
+
+\begin{definition}{变系数迎风格式}{variable_coeff_upwind}
+对变系数对流方程
+\[
+\frac{\partial u}{\partial t} + a(x)\frac{\partial u}{\partial x} = 0,
+\]
+因波速 $a_j = a(jh)$ 可能变号，迎风方向随之改变，格式为
+\[
+\begin{cases}
+\dfrac{u_j^{n+1} - u_j^n}{\tau} + a_j\,\dfrac{u_j^n - u_{j-1}^n}{h} = 0,
+& \text{若 } a_j \geq 0, \\[10pt]
+\dfrac{u_j^{n+1} - u_j^n}{\tau} + a_j\,\dfrac{u_{j+1}^n - u_j^n}{h} = 0,
+& \text{若 } a_j < 0.
+\end{cases}
+\]
+\end{definition}
+
+\begin{note}
+变系数迎风格式的原则与常系数完全一致：始终沿信息真实传来的方向取差商。
+$a_j \geq 0$ 时信息从左传来，取向后差商；$a_j < 0$ 时信息从右传来，取向前差商。
+\end{note}
