@@ -1,34 +1,46 @@
-<!-- Author : Dongsheng Deng & Liam Huang-->
-<!-- Program Email: elegantlatex2e@gmail.com -->
+# dx 的微分方程数值解
 
-[Homepage](https://elegantlatex.org/) | [Github](https://github.com/ElegantLaTeX/ElegantBook) | [CTAN](https://ctan.org/pkg/elegantbook) | [Download](https://github.com/ElegantLaTeX/ElegantBook/releases) | [Wiki](https://github.com/ElegantLaTeX/ElegantBook/wiki) | [Weibo](https://weibo.com/elegantlatex)
+## 序
 
-![License](https://img.shields.io/ctan/l/elegantbook.svg) ![CTAN Version](https://img.shields.io/ctan/v/elegantbook.svg) ![Github Version](https://img.shields.io/github/release/ElegantLaTeX/ElegantBook.svg) ![Repo Size](https://img.shields.io/github/repo-size/ElegantLaTeX/ElegantBook.svg)
+我一直觉得，数值方法真正迷人的地方，不在于它最后给了我们一个近似值，而在于它逼着我们重新理解原来的方程。
 
--------
+一个微分方程如果只停留在纸面上，它当然也可以很漂亮，定理、解法、推导都自有体系。但只要你真的开始问一句“如果没有解析解怎么办”“如果我要让机器去算，它到底该怎么算”，整件事情就会突然变得很不一样。你不再只是看一个方程成立，而是开始追问: 导数究竟该怎样被离散化，边界条件到底在限制什么，为什么一个内点会被周围点决定，为什么有些格式一算就稳，有些格式却会把误差越放越大。
 
-# ElegantBook: An Elegant LaTeX Template for Books
+对我来说，这种变化很有意思。因为它说明数值分析不是在“降低”数学，而是在把数学翻译成另一种语言。
 
-ElegantBook is designed for writing books, created by [Dongsheng Deng](https://ddswhu.me/) and [Liam Huang](https://liam.page/). Just enjoy it! If you have any questions, suggestions or bug reports, you can create issues or contact us at elegantlatex2e@gmail.com.
+## 为什么我想这样写这本书
 
-## Important Notes
+因为我不太喜欢把数值方法写成一连串格式的清单。
 
-For some reasons, __unauthorized__ pull requests are **UNACCEPTABLE** since May 20, 2019. For those who want to help revise the templates, submit issues or clone to your own repository to modify under the LPPL-1.3c.
+如果只是把 Euler 法、差分格式、稳定性条件、相容性、收敛性一条条列出来，当然也能学，但很容易留下一个错觉，好像数值分析只是“背会几个模板，然后代进去”。可我自己越学越觉得，它真正训练的不是套公式，而是翻译能力。你要把连续对象翻译成离散对象，把微分关系翻译成差商关系，把局部几何翻译成可计算的递推格式，把物理或几何意义翻译成数值稳定性的要求。
 
-## Acknowledgement
+书里很多我自己很喜欢的句子，其实都在做这种翻译。比如“带 f 的式子就是导数也就是方向，h 就是在这个方向走了多远”，比如“内点都是未知的，然后一个内点用周围四个点来确定”，再比如那段关于“一张膜，边缘被固定，中间被一个分布的力压着”的解释。这些说法听起来很朴素，但它们恰恰是数值方法最重要的直觉来源。因为一旦这些图像感回来，公式就不再只是公式。
 
-Thank [sikouhjw](https://github.com/sikouhjw) and [syvshc](https://github.com/syvshc) for their quick response to Github issues and continuously support work for ElegantLaTeX.
+## 这本书想保住的主线
 
-Thank ChinaTeX and [LaTeX Studio](http://www.latexstudio.net/) for their promotion. 
+它当然也有很明确的课程结构。
 
+第一章从基础知识和常微分方程数值方法开始，围绕 Euler 法、局部截断误差、稳定性、收敛性、相容性这些最核心的概念，帮助读者建立“数值方法到底在做什么”的第一层理解。第二章进入椭圆型方程的有限差分法，并逐步碰到抛物型、双曲型问题、对偶剖分、守恒关系与不同差分格式的区别。
 
-## License
+但如果只按章节去看，你还是会错过它真正想讲的那条线。因为这本书一直在回答同一个问题: 一个连续问题，到底是怎样一步步被改写成机器可以处理的对象的。
 
-This work is released under the LaTeX Project Public License, v1.3c or later.
+差分法不是单纯拿差商替换导数那么简单。它背后总有一个更深的动作: 你先决定用哪些点来代表解，再决定局部关系怎样在这些点上保留下来，再决定边界、误差和传播机制怎样一起被控制住。数值方法一旦从这个角度去看，就会突然变得比“格式大全”有生命得多。
 
+## 我想把它写给谁
 
-## Derivative Works
+我想把它写给那种在微分方程和数值分析之间卡住的人。
 
-+ [ElegantBookdown](https://github.com/XiangyunHuang/ElegantBookdown)：[XiangyunHuang](https://github.com/XiangyunHuang) developed a Bookdown template based on ElegantBook.
-+ [bookdownplus](https://github.com/pzhaonet/bookdownplus): maintained by [pzhaonet](https://github.com/pzhaonet).
-+ [PanBook](https://github.com/annProg/PanBook)：a markdown-based writing workflow Developed by [annProg](https://github.com/annProg).
+你可能会有这样的感觉: 原方程我大概懂，边值问题和初值问题也会写，可一到数值方法这里，脑子就像突然换了频道。为什么这里开始切网格？为什么开始看节点？为什么要讨论稳定性，而不是只看近似精不精确？  
+
+如果你正在这个阶段，那这本书就是写给你的。它很想帮你跨过的，不是某一道具体题，而是那一步最关键的理解转换: 从“我知道方程长什么样”到“我知道怎样把它变成可计算、可控制、可分析的对象”。
+
+## 最后
+
+如果这本书最后能让你在看到一个数值格式时，不再只把它当成一个要记住的公式，而会下意识地去想“它在近似哪一个连续动作”“它保留了哪个局部结构”“它为什么稳定或者不稳定”；如果它能让你慢慢觉得，数值分析不是在向计算妥协，而是在用另一种方式重新理解方程；如果它能让你开始享受那种把连续世界一点点翻译成离散世界的过程，那么这本书就已经达到了我最想让它达到的样子。
+
+## 仓库说明
+
+- 主文件是 `main.tex`。
+- 章节内容主要在 `第一章.tex` 与 `第二章.tex`。
+- 书中围绕有限差分、三角网格差分、稳定性与不同类型方程的离散方法展开。
+- 若需要本地编译，通常运行 `xelatex main.tex` 两次即可。
