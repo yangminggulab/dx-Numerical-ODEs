@@ -1,36 +1,90 @@
-# dx's Numerical Differential Equations
+# dx 的微分方程数值解
 
-## Preface
+## 序
 
-Numerical methods are fascinating not only because they produce approximate values, but because they force us to understand the original equations again in a different language.
+我一直觉得，数值方法真正迷人的地方，不在于它最后给了我们一个近似值，而在于它逼着我们重新理解原来的方程。
 
-Once we ask what to do when no analytic solution is available, the problem changes. We must ask how derivatives become differences, how boundary conditions constrain unknowns, why an interior point can be determined by surrounding points, and why some schemes remain stable while others amplify error.
+一个微分方程如果只停留在纸面上，它当然也可以很漂亮，定理、解法、推导都自有体系。但只要你真的开始问一句“如果没有解析解怎么办”“如果我要让机器去算，它到底该怎么算”，整件事情就会突然变得很不一样。你不再只是看一个方程成立，而是开始追问: 导数究竟该怎样被离散化，边界条件到底在限制什么，为什么一个内点会被周围点决定，为什么有些格式一算就稳，有些格式却会把误差越放越大。
 
-## Why This Book Is Written This Way
+对我来说，这种变化很有意思。因为它说明数值分析不是在“降低”数学，而是在把数学翻译成另一种语言。
 
-I did not want this subject to become a list of schemes. Euler methods, finite differences, stability, consistency, and convergence are not templates to memorize. They are translations from continuous problems into discrete, computable, and controllable objects.
+## 为什么我想这样写这本书
 
-Many explanations in the notes keep this translation visible: slopes become directions, step sizes decide how far to move, grid points represent unknown values, and local relations are preserved through difference formulas.
+因为我不太喜欢把数值方法写成一连串格式的清单。
 
-## What This Book Keeps
+如果只是把 Euler 法、差分格式、稳定性条件、相容性、收敛性一条条列出来，当然也能学，但很容易留下一个错觉，好像数值分析只是“背会几个模板，然后代进去”。可我自己越学越觉得，它真正训练的不是套公式，而是翻译能力。你要把连续对象翻译成离散对象，把微分关系翻译成差商关系，把局部几何翻译成可计算的递推格式，把物理或几何意义翻译成数值稳定性的要求。
 
-The first part builds the core ideas for numerical ODEs: Euler methods, local truncation error, stability, convergence, and consistency. The later part develops finite-difference methods for elliptic equations and then moves toward parabolic and hyperbolic problems, dual grids, conservation relations, and different discrete schemes.
+书里很多我自己很喜欢的句子，其实都在做这种翻译。比如“带 f 的式子就是导数也就是方向，h 就是在这个方向走了多远”，比如“内点都是未知的，然后一个内点用周围四个点来确定”，再比如那段关于“一张膜，边缘被固定，中间被一个分布的力压着”的解释。这些说法听起来很朴素，但它们恰恰是数值方法最重要的直觉来源。因为一旦这些图像感回来，公式就不再只是公式。
 
-The main question throughout is how a continuous problem becomes something a machine can compute without losing mathematical control.
+## 这本书想保住的主线
 
-## Intended Readers
+它当然也有很明确的课程结构。
 
-This book is for readers who understand differential equations but feel a channel switch when numerical analysis begins. It tries to make the transition from continuous equations to discrete schemes explicit and natural.
+第一章从基础知识和常微分方程数值方法开始，围绕 Euler 法、局部截断误差、稳定性、收敛性、相容性这些最核心的概念，帮助读者建立“数值方法到底在做什么”的第一层理解。第二章进入椭圆型方程的有限差分法，并逐步碰到抛物型、双曲型问题、对偶剖分、守恒关系与不同差分格式的区别。
 
-## Overall Roadmap
+但如果只按章节去看，你还是会错过它真正想讲的那条线。因为这本书一直在回答同一个问题: 一个连续问题，到底是怎样一步步被改写成机器可以处理的对象的。
 
-Following MIT numerical differential equations and numerical PDE courses, the subject studies both ODE initial-value methods such as Euler, implicit Euler, error, and stability, and finite-difference methods for elliptic, parabolic, and hyperbolic PDEs. This repository follows exactly that line: ODE time stepping plus PDE finite differences.
+差分法不是单纯拿差商替换导数那么简单。它背后总有一个更深的动作: 你先决定用哪些点来代表解，再决定局部关系怎样在这些点上保留下来，再决定边界、误差和传播机制怎样一起被控制住。数值方法一旦从这个角度去看，就会突然变得比“格式大全”有生命得多。
 
+## 我想把它写给谁
+
+我想把它写给那种在微分方程和数值分析之间卡住的人。
+
+你可能会有这样的感觉: 原方程我大概懂，边值问题和初值问题也会写，可一到数值方法这里，脑子就像突然换了频道。为什么这里开始切网格？为什么开始看节点？为什么要讨论稳定性，而不是只看近似精不精确？
+
+如果你正在这个阶段，那这本书就是写给你的。它很想帮你跨过的，不是某一道具体题，而是那一步最关键的理解转换: 从“我知道方程长什么样”到“我知道怎样把它变成可计算、可控制、可分析的对象”。
+
+## 最后
+
+如果这本书最后能让你在看到一个数值格式时，不再只把它当成一个要记住的公式，而会下意识地去想“它在近似哪一个连续动作”“它保留了哪个局部结构”“它为什么稳定或者不稳定”；如果它能让你慢慢觉得，数值分析不是在向计算妥协，而是在用另一种方式重新理解方程；如果它能让你开始享受那种把连续世界一点点翻译成离散世界的过程，那么这本书就已经达到了我最想让它达到的样子。
+
+## 整体规划
+
+参考 MIT 数值微分方程与数值 PDE 课程的组织：数值解法一边研究 ODE 初值问题的 Euler / 隐式 Euler / 误差与稳定性，一边用有限差分处理椭圆、抛物、双曲型 PDE；本仓库正是“ODE 时间推进 + PDE 有限差分”这条线。
+
+```text
+微分方程数值解 = 把连续方程变成可计算的离散问题
+│
+├── 这门课要解决的问题
+│   ├── 解析解求不出来时，怎样一步步算近似解？
+│   │   └── 用 Euler、隐式 Euler、预估-校正等格式推进 ODE 初值问题
+│   ├── 连续 PDE 怎样落到有限个网格点上？
+│   │   └── 用网格剖分、差商和边界条件把方程转成代数方程组
+│   └── 数值解为什么可信？
+│       └── 用局部截断误差、相容性、稳定性、收敛性检查格式可靠性
+│
+├── 工具一  ODE 初值问题  →  从斜率出发向前走
+│   ├── Lipschitz 条件     保证误差递推能被控制
+│   ├── 显式 Euler         用当前点斜率推进，简单但条件稳定
+│   ├── 隐式 Euler         用下一点斜率推进，计算更重但稳定性更好
+│   ├── 预估-校正算法      先预测下一点，再用平均斜率修正
+│   └── 局部/整体截断误差  区分一步误差和累积误差
+│
+├── 工具二  离散化语言  →  从连续到网格
+│   ├── 网格剖分          把区间或区域拆成有限个节点
+│   ├── 差商代替微商      用离散函数值近似导数
+│   ├── 相容性            检查差分算子是否逼近原微分算子
+│   └── 稳定性与收敛性    控制误差不会被格式放大
+│
+├── 工具三  椭圆型方程  →  稳态边值问题
+│   ├── 五点差分格式      把 Laplace / Poisson 问题转成线性方程组
+│   ├── 三角网格差分      处理更灵活的区域剖分
+│   └── 离散极值思想      帮助理解解的唯一性和稳定控制
+│
+├── 工具四  抛物型方程  →  扩散过程的时间推进
+│   ├── 显式格式          每一步直接向前算
+│   ├── 隐式格式          用线性系统换取更好稳定性
+│   └── 稳定性条件        判断步长和网格宽度能不能配合
+│
+└── 工具五  双曲型方程  →  传播过程的数值模拟
+    ├── 差分格式          近似波的传播关系
+    ├── 初值边值处理      把传播问题放到网格上
+    └── 稳定性分析        控制波动误差不被放大
 ```
 
-## Repository Notes
+## 仓库说明
 
-- The main entry is `main.tex`.
-- The chapter files cover ODE time stepping and finite-difference methods for PDEs.
-- The notes emphasize finite differences, triangular-grid differences, stability, and discretization for different equation types.
-- For local compilation, running `xelatex main.tex` twice is usually enough.
+- 主文件是 `main.tex`。
+- 章节内容主要在 `第一章.tex` 与 `第二章.tex`。
+- 书中围绕有限差分、三角网格差分、稳定性与不同类型方程的离散方法展开。
+- 若需要本地编译，通常运行 `xelatex main.tex` 两次即可。
